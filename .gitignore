@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+
+# Build output
+.next/
+frontend/.next/
+dist/
+frontend/out/
+
+# Hardhat/solidity artifacts
+artifacts/
+cache/
+typechain/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Coverage/temp
+coverage/
+*.tmp
+*.swp

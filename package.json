@@ -1,0 +1,39 @@
+{
+  "name": "qns-payment-code",
+  "version": "2.0.0",
+  "description": "QNNS - Quai Network Name Service with ERC-721, auctions, marketplace, and IPFS content hash",
+  "main": "dist/sdk/index.js",
+  "types": "dist/sdk/index.d.ts",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat compile && node test/run.js",
+    "deploy": "node scripts/deploy.js",
+    "build": "tsc",
+    "clean": "rm -rf dist cache artifacts"
+  },
+  "keywords": [
+    "quai",
+    "blockchain",
+    "name-service",
+    "payment-codes",
+    "bip47"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "quais": "^1.0.0-alpha.52",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@quai/hardhat-deploy-metadata": "^1.0.8",
+    "@types/node": "^20",
+    "hardhat": "^2.26.3",
+    "typescript": "^5"
+  },
+  "files": [
+    "dist/sdk/**/*",
+    "contracts/**/*",
+    "README.md"
+  ]
+}
