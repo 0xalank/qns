@@ -106,6 +106,12 @@ export default function Home() {
             <div className="space-y-6">
               <SearchBar onQueryChange={setSearchQuery} />
               <ResolutionPreview name={searchQuery} />
+              <div className="flex flex-wrap items-center gap-3">
+                <Link href="/docs#pricing" className="reg-btn reg-btn-ghost text-sm">
+                  See domain pricing →
+                </Link>
+                <span className="text-sm text-muted">Instant claims start with 7+ character names.</span>
+              </div>
             </div>
           </div>
         </div>
@@ -213,6 +219,9 @@ export default function Home() {
         </div>
         <Link href="/docs" className="reg-btn reg-btn-ghost shrink-0 border border-line-strong hover:border-blue hover:text-blue">
           Read the docs →
+        </Link>
+        <Link href="/docs#pricing" className="reg-btn reg-btn-stamp shrink-0">
+          Pricing guide
         </Link>
       </section>
     </div>
