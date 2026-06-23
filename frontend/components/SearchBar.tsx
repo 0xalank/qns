@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { isValidName, nameValidationError, getRegistrationType } from '@/lib/utils';
 import { isAvailable } from '@/lib/qnns';
 
-export function SearchBar() {
+export function SearchBar({ onQueryChange }: { onQueryChange?: (query: string) => void }) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [available, setAvailable] = useState<boolean | null>(null);
@@ -30,6 +30,7 @@ export function SearchBar() {
 
   useEffect(() => {
     const name = query.toLowerCase().trim();
+    onQueryChange?.(name);
     const err = name.length > 0 ? nameValidationError(name) : null;
     setValidationErr(err);
 
@@ -40,7 +41,7 @@ export function SearchBar() {
 
     const timeout = setTimeout(() => checkName(name), 400);
     return () => clearTimeout(timeout);
-  }, [query, checkName]);
+  }, [query, checkName, onQueryChange]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,0 +1,48 @@
+# QNS — Quai Name Service
+
+> QNS is a name registry and on-chain website loader on Quai Network. A wallet registers a renewable `.quai` name and binds it to a Quai address, a Qi (BIP47) payment code, an on-chain avatar, social profiles, and a Nostr key. Optionally, a name can resolve to a real website through the QNS module loader, with all bytes stored on-chain and verified by hash.
+
+## Core concepts
+
+- Names: `1–64` chars matching `^[a-z0-9_-]+$`. Suffix is `.quai`. `nameHash = keccak256(normalizedName)`.
+- Ownership: the live QNNS registry mints names as ERC-721 records. Direct transfers are fee-gated by the contract, and marketplace bids can be accepted on-chain.
+- Validity: names register for one year, can be renewed by paying the yearly fee or from the owner's lock deposit, and have a 30-day grace period after expiry.
+- Registration: names with 7+ characters register instantly for a flat fee; names with 1–6 characters are settled by a 24-hour English auction with a 30-minute anti-snipe window.
+- Profile fields: Quai address, Qi payment code (PM8T…), Nostr pubkey, avatar (128×128 PNG, ≤15KB, on-chain), display name, description, URL, Twitter, GitHub, Discord, Telegram.
+
+## Modules (turning a name into a website)
+
+A name can resolve to a website with no web server. The chain of trust is: name → anchor → module → renderer.
+
+- Anchor: a compact 96-byte on-chain pointer (version, chainId, module address, topology, manifest hash) stored in the `QNSAnchorRegistry`. Set/cleared only by the current name owner.
+- Module: a contract implementing `IQNSModule` (`moduleVersion`, `moduleTopology`, `moduleManifestHash`, `moduleManifest`). The manifest's keccak256 must equal the anchor's manifest hash.
+- Loader: wallet-native (Pelagus) or gateway code that verifies every hash and renders with bundled, known-safe renderers. Unknown topology/renderer or a bad hash fails closed.
+- Topologies (v1 live: static-site, redirect; reserved: bootstrap, contract-data, component-graph, app-contract, publish, qi-ephemeral). Static sites store HTML/CSS/markdown/text in contract chunks; JavaScript is never executed.
+
+## Deploy a module (CLI)
+
+Run from the repo root. Configure `.env` with `CYPRUS1_PK` (signer key) and optional `MAINNET_RPC_URL`.
+
+1. Publish site bytes: `QNS_NAME=yoursite QNS_SITE_DIR=./examples/static-site npm run publish:static:mainnet`
+2. Bind the name (must own it): `QNS_NAME=yoursite QNNS_CONTRACT=<qnns> SET_ANCHOR=true npm run anchor:module:mainnet`
+3. Verify and view: `npm run verify:module:mainnet` then `QNS_NAME=yoursite npm run load:module:mainnet`
+
+Shortcut examples: `npm run deploy:examples:mainnet` (fixed static site), `npm run deploy:examples:html:mainnet` (HTML+CSS).
+
+## Mainnet addresses (Cyprus-1)
+
+- QNNS (name registry): 0x001d4668f5621ee6211C396243faFe163A057516
+- Anchor registry: 0x000041d9d377ab357DD36e3205C9fB53fda40CC7
+- Name resolver: 0x004Aa57E161510Fc07Ad84b9269405Dcb9aC97A6
+- Static content store: 0x003fe73d3ddde2638853921C6C8997E1338cDE33
+- Static site module: 0x002BA558B2adea163F8d78B2d44ABec15622EdB6
+- Example launch name: moduleexample
+
+## Docs
+
+- Overview: /docs
+- How modules work: /docs/modules
+- Deploy a module: /docs/deploy
+- Module inspector (read what a name loads): /modules
+- Module loader spec (full): docs/qns-module-loader-spec.md
+- Publish spec (full): docs/qns-publish-spec.md

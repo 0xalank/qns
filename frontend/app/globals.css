@@ -59,6 +59,39 @@
   --tick: 11px; /* corner-tick length */
 }
 
+html.dark {
+  /* Field & surfaces — deep obsidian, electric neon highlights */
+  --paper:        oklch(0.125 0.015 258);
+  --paper-2:      oklch(0.155 0.018 258);  /* slate-dark surface */
+  --paper-sunk:   oklch(0.095 0.012 258);  /* deep well */
+  --ink:          oklch(0.965 0.012 255);  /* crisp white */
+  --ink-soft:     oklch(0.840 0.015 255);  /* soft silver */
+  --muted:        oklch(0.640 0.018 255);  /* medium gray */
+  --faint:        oklch(0.380 0.015 255);  /* dark gray */
+
+  --line:         oklch(0.220 0.014 258);  /* hairline border */
+  --line-strong:  oklch(0.320 0.018 258);  /* strong border */
+
+  /* Electric blue — brand, action, focus (glowing neon variations) */
+  --blue:         oklch(0.665 0.225 258);
+  --blue-deep:    oklch(0.535 0.215 258);
+  --blue-bright:  oklch(0.745 0.220 255);
+  --blue-wash:    oklch(0.180 0.055 258);
+
+  /* Status */
+  --good:         oklch(0.715 0.160 190);  /* bright cyan-teal */
+  --good-wash:    oklch(0.180 0.045 190);
+  --warn:         oklch(0.755 0.140 82);   /* glowing yellow */
+  --warn-wash:    oklch(0.185 0.040 82);
+  --bad:          oklch(0.635 0.205 28);   /* glowing red */
+  --bad-wash:     oklch(0.175 0.045 28);
+
+  /* internal accent name kept = blue */
+  --stamp:        var(--blue);
+  --stamp-deep:   var(--blue-deep);
+  --stamp-wash:   var(--blue-wash);
+}
+
 html {
   min-height: 100%;
   background: var(--paper);
@@ -227,7 +260,7 @@ body {
 /* Neutral dark */
 .reg-btn-ink {
   background: var(--ink);
-  color: #fff;
+  color: var(--paper);
   border-color: var(--ink);
 }
 .reg-btn-ink:hover:not(:disabled) { background: var(--ink-soft); }
