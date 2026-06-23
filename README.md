@@ -155,6 +155,111 @@ npx hardhat compile
 node scripts/deploy.js
 ```
 
+## QNS Module Loader Mainnet
+
+The MVP module deployment path is mainnet-only for the live demo. The primary example is a static-site module that stores HTML and CSS bytes in contract state and exposes them through the module loader. It writes `deployments/qns-modules-mainnetCyprus1-9.json`.
+
+The target wallet UX is native Pelagus rendering, not a hosted gateway page. The
+local Next `/modules` page is only a debug/explorer surface while the Pelagus
+extension renderer is being built. In the intended flow, inputs like these are
+handled by Pelagus and rendered from chain inside the extension:
+
+```text
+0x0072d691826aae17b8bb01fe2ecadd2d9ec1a568.quai
+qns://0x0072D691826aAE17B8bB01Fe2ecADd2D9eC1a568
+```
+
+```bash
+npm run deploy:examples:mainnet
+npm run deploy:examples:html:mainnet
+npm run probe:qnns:mainnet
+npm run load:module:mainnet
+npm run verify:module:mainnet
+```
+
+Current live static module:
+
+```text
+0x0072D691826aAE17B8bB01Fe2ecADd2D9eC1a568
+```
+
+Deployment transaction:
+
+```text
+0x001e00584ee3fd8be24d3a0b1b5ac707fa0cc870ed6dca8f1ca0fb7b6c07f624
+```
+
+Previous markdown static module:
+
+```text
+0x006D6ca9F508531a686b83Bd370b7CA009891569
+```
+
+Legacy redirect-only module:
+
+```text
+0x0033971a7f17EDde345904F6D823996e1aaB8658
+```
+
+If the deployment file points at the legacy redirect address above, that is not the target static-site proof. Re-run `npm run deploy:examples:html:mainnet` to deploy the generic HTML/CSS static-site module; the verifier will then fetch each listed file from contract state and hash-check it before rendering.
+
+Bare `load:module:mainnet` and `verify:module:mainnet` intentionally reject that legacy redirect artifact. To inspect it anyway:
+
+```bash
+ALLOW_LEGACY_REDIRECT=true npm run load:module:mainnet
+```
+
+The fuller multi-contract static-site example is still available through `EXAMPLE_MODULE=static npm run deploy:examples:quais`, but it requires enough mainnet QUAI for multiple contract deployments and content writes. QNS-name resolution also requires a valid deployed mainnet QNNS contract, a compatible name resolver adapter, and an anchor registry; direct module-address loading works without those.
+
+Direct-address module loading:
+
+```bash
+MODULE_ADDRESS=0x0072D691826aAE17B8bB01Fe2ecADd2D9eC1a568 npm run load:module:mainnet
+```
+
+For a static module, `load:module:mainnet` does the full read path:
+
+1. Read `moduleManifest()` from the module contract.
+2. Verify `keccak256(moduleManifest()) == moduleManifestHash()`.
+3. Decode the static-site topology data.
+4. Read the listed file chunks from `staticSite.contentStore`.
+5. Verify the assembled bytes against each file `contentHash`.
+6. Render the entry bytes according to MIME type and policy.
+
+Name loading is the same CLI path once the mainnet anchor registry is deployed:
+
+```bash
+QNS_NAME=alice QNS_ANCHOR_REGISTRY_ADDRESS=0x... npm run load:module:mainnet
+```
+
+Mainnet name anchoring is intentionally explicit. `probe:qnns:mainnet` scans candidate contracts from the known deployer history and checks whether they expose the current QNNS interface or the resolver adapter interface. `anchor:module:mainnet` requires either a valid `QNNS_CONTRACT` / `QNS_MAINNET_QNNS_ADDRESS` for `QNSCurrentOwnerResolver`, or an existing `QNS_NAME_RESOLVER_ADDRESS`.
+
+First validate a candidate QNNS:
+
+```bash
+QNNS_CONTRACT=0x... EXAMPLE_QNS_NAME=alice npm run anchor:module:mainnet
+npm run probe:qnns:mainnet
+```
+
+The QNNS probe accepts explicit QNNS/resolver candidates and additional scan addresses:
+
+```bash
+QNNS_CANDIDATES=0x... QNS_NAME_RESOLVER_CANDIDATES=0x... QNNS_SCAN_ADDRESSES=0x...,0x... npm run probe:qnns:mainnet
+```
+
+Then deploy the anchor registry or set the anchor only when ready:
+
+```bash
+DEPLOY_NAME_RESOLVER=true DEPLOY_ANCHOR_REGISTRY=true QNNS_CONTRACT=0x... npm run anchor:module:mainnet
+SET_ANCHOR=true QNNS_CONTRACT=0x... QNS_NAME_RESOLVER_ADDRESS=0x... QNS_ANCHOR_REGISTRY_ADDRESS=0x... EXAMPLE_QNS_NAME=alice npm run anchor:module:mainnet
+```
+
+If a custom resolver already exists, skip the raw QNNS address:
+
+```bash
+QNS_NAME_RESOLVER_ADDRESS=0x... QNS_ANCHOR_REGISTRY_ADDRESS=0x... EXAMPLE_QNS_NAME=alice npm run anchor:module:mainnet
+```
+
 ## Contract
 
 | File | Description |

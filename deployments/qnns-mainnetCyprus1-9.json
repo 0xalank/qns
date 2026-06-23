@@ -1,0 +1,24 @@
+{
+  "network": "mainnetCyprus1",
+  "chainId": "9",
+  "deployer": "0x000b74eE75396be4Dd6985aD2b841458c0775f02",
+  "qnnsAddress": "0x001d4668f5621ee6211C396243faFe163A057516",
+  "qnnsTx": "0x004d0071515d0bc464966c732c59cf0c439e92d056ccc60aa2758ae2fe404998",
+  "pricing": {
+    "registrationFee7Plus": "200000000000000000000",
+    "auctionFloor4to6": "1000000000000000000000",
+    "auctionFloor1to3": "5000000000000000000000",
+    "minLockAmount": "100000000000000000000",
+    "quaiPerQi": "13925000000000000000",
+    "yearlyPriceQi5Plus": "4330000000000000000",
+    "yearlyPriceQi4Char": "173000000000000000000",
+    "yearlyPriceQi3OrLess": "865000000000000000000"
+  },
+  "registeredNames": {
+    "moduleexample": {
+      "nameHash": "0xa71b33a58393108a612f90471cc6ac1967dd2845117e4b69b4a9e9ea7c5a1a48",
+      "owner": "0x000b74eE75396be4Dd6985aD2b841458c0775f02",
+      "active": true
+    }
+  }
+}

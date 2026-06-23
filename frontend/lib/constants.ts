@@ -1,8 +1,19 @@
-// QNNS contract address on Orchard testnet
-// Update this after deploying with: node scripts/deploy.js
-export const QNNS_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_QNNS_CONTRACT || process.env.NEXT_PUBLIC_QNS_CONTRACT || '';
+// Mainnet module loader defaults. The legacy redirect module remains listed
+// for explicit testing, but the primary example should be a static-site module
+// that stores and renders bytes from contract state.
+export const QNS_MAINNET_REDIRECT_MODULE_ADDRESS = '0x0033971a7f17EDde345904F6D823996e1aaB8658';
+export const QNS_MAINNET_MARKDOWN_MODULE_ADDRESS = '0x006D6ca9F508531a686b83Bd370b7CA009891569';
+export const QNS_MAINNET_EXAMPLE_MODULE_ADDRESS = '0x002BA558B2adea163F8d78B2d44ABec15622EdB6';
+export const QNS_MAINNET_QNNS_ADDRESS = '0x001d4668f5621ee6211C396243faFe163A057516';
+export const QNS_MAINNET_NAME_RESOLVER_ADDRESS = '0x004Aa57E161510Fc07Ad84b9269405Dcb9aC97A6';
+export const QNS_MAINNET_ANCHOR_REGISTRY_ADDRESS = '0x000041d9d377ab357DD36e3205C9fB53fda40CC7';
+export const QNS_MAINNET_LAUNCH_NAME = 'moduleexample';
 
-export const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || 'https://orchard.rpc.quai.network/cyprus1';
+export const QNNS_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_QNNS_CONTRACT || process.env.NEXT_PUBLIC_QNS_CONTRACT || QNS_MAINNET_QNNS_ADDRESS;
+export const QNS_ANCHOR_REGISTRY_ADDRESS = process.env.NEXT_PUBLIC_QNS_ANCHOR_REGISTRY || QNS_MAINNET_ANCHOR_REGISTRY_ADDRESS;
+export const QNS_EXAMPLE_MODULE_ADDRESS = process.env.NEXT_PUBLIC_QNS_EXAMPLE_MODULE || QNS_MAINNET_EXAMPLE_MODULE_ADDRESS;
+
+export const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || 'https://rpc.quai.network/cyprus1';
 
 export const GRACE_PERIOD_SECONDS = 30 * 24 * 3600; // 30 days
 export const ONE_YEAR_SECONDS = 365 * 24 * 3600;
@@ -98,3 +109,7 @@ export const QNNS_ABI = [
   'event MarketplaceBidAccepted(bytes32 indexed nameHash, uint256 bidIndex, address indexed seller, address indexed buyer, uint256 amount)',
   'event ContentHashUpdated(bytes32 indexed nameHash, bytes contentHash)',
 ];
+
+// Backward-compatible aliases for the older QNS client module.
+export const QNS_CONTRACT_ADDRESS = QNNS_CONTRACT_ADDRESS;
+export const QNS_ABI = QNNS_ABI;

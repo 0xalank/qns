@@ -78,11 +78,11 @@ export function AvatarUpload({ currentAvatar, onUpload }: AvatarUploadProps) {
 
   return (
     <div className="flex items-center gap-4">
-      <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden">
+      <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden border border-line-strong bg-paper-sunk">
         {avatarUrl ? (
-          <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+          <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
         ) : (
-          <span className="text-neutral-600 text-xl">?</span>
+          <span className="font-display text-xl text-faint">?</span>
         )}
       </div>
       <div>
@@ -96,12 +96,12 @@ export function AvatarUpload({ currentAvatar, onUpload }: AvatarUploadProps) {
         <button
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="text-sm bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+          className="reg-btn reg-btn-ghost px-3 py-1.5 text-xs"
         >
-          {uploading ? 'Uploading...' : 'Change Avatar'}
+          {uploading ? 'Stamping…' : 'Change avatar'}
         </button>
-        <p className="text-xs text-neutral-500 mt-1">128x128, max 15KB, PNG</p>
-        {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+        <p className="mt-1.5 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-faint">128×128 · PNG · max 15KB · stored on-chain</p>
+        {error && <p className="mt-1 font-mono text-xs text-bad">{error}</p>}
       </div>
     </div>
   );

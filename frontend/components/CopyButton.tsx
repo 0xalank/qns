@@ -20,13 +20,13 @@ export function CopyButton({ text, label, className = '' }: CopyButtonProps) {
   return (
     <button
       onClick={copy}
-      className={`text-xs px-2 py-1 rounded transition-colors ${
+      className={`shrink-0 border px-2.5 py-1.5 font-mono text-[0.65rem] uppercase tracking-[0.14em] transition-colors ${
         copied
-          ? 'bg-green-800 text-green-300'
-          : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+          ? 'border-good text-good'
+          : 'border-line-strong text-muted hover:border-ink hover:text-ink'
       } ${className}`}
     >
-      {copied ? 'Copied!' : label || 'Copy'}
+      {copied ? 'Copied' : label || 'Copy'}
     </button>
   );
 }

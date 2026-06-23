@@ -13,27 +13,23 @@ export function ActivityFeed() {
   }, [fetch]);
 
   return (
-    <div className="bg-neutral-900 rounded-xl p-5">
-      <h2 className="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">
-        Recent Auctions
-      </h2>
+    <div className="reg-record p-5">
+      <h2 className="reg-label mb-3">Recent auctions</h2>
       {loading && auctions.length === 0 && (
-        <p className="text-sm text-neutral-500">Loading...</p>
+        <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted">Reading the register…</p>
       )}
       {!loading && auctions.length === 0 && (
-        <p className="text-sm text-neutral-500">No auctions yet. Be the first!</p>
+        <p className="text-sm text-muted">No auctions yet. Be the first to open one.</p>
       )}
-      <div className="space-y-2">
+      <div className="divide-y divide-line">
         {auctions.map((a, i) => (
           <Link
             key={`${a.nameHash}-${i}`}
             href={`/${encodeURIComponent(a.name)}`}
-            className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-neutral-800 transition-colors"
+            className="group flex items-center justify-between gap-3 py-2.5 transition-colors hover:text-stamp"
           >
-            <span className="font-medium text-white">{a.name}</span>
-            <span className="text-xs text-neutral-500 font-mono">
-              {truncateAddress(a.initiator, 4)}
-            </span>
+            <span className="font-display text-base text-ink group-hover:text-stamp">{a.name}<span className="text-muted">.quai</span></span>
+            <span className="font-mono text-xs text-muted">{truncateAddress(a.initiator, 4)}</span>
           </Link>
         ))}
       </div>

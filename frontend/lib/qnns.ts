@@ -462,7 +462,7 @@ export async function getNamesOwnedBy(address: string): Promise<string[]> {
 
   // Verify current ownership
   const owned: string[] = [];
-  for (const nameHash of nameHashes) {
+  for (const nameHash of Array.from(nameHashes)) {
     try {
       const tokenId = BigInt(nameHash);
       const owner = await contract.ownerOf(tokenId);

@@ -9,6 +9,15 @@ import * as qnns from '@/lib/qnns';
 import { formatQuai, expiryStatusLabel, expiryBadgeColor, timeUntil } from '@/lib/utils';
 import Link from 'next/link';
 
+function Gate({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="reg-rise mx-auto max-w-lg py-16 text-center">
+      <h1 className="font-display text-4xl text-ink">{title}</h1>
+      <div className="mt-6">{children}</div>
+    </div>
+  );
+}
+
 export default function MyNamesPage() {
   const router = useRouter();
   const { connected, address, signer, connect, pelagusInstalled } = useWallet();
@@ -44,7 +53,6 @@ export default function MyNamesPage() {
   };
 
   const handleUpdate = () => {
-    // Refresh both the list and the detail
     loadNames();
     if (selectedHash) {
       selectName(selectedHash);
@@ -53,67 +61,57 @@ export default function MyNamesPage() {
 
   if (!pelagusInstalled) {
     return (
-      <div className="text-center py-20">
-        <h1 className="text-2xl font-bold mb-3">My Names</h1>
-        <p className="text-neutral-400 mb-4">Install Pelagus wallet to manage your names.</p>
-        <a href="https://pelaguswallet.io" target="_blank" rel="noopener noreferrer" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg inline-block transition-colors">
+      <Gate title="Wallet required">
+        <p className="mb-5 text-muted">Install Pelagus to manage the names you hold.</p>
+        <a href="https://pelaguswallet.io" target="_blank" rel="noopener noreferrer" className="reg-btn reg-btn-stamp">
           Install Pelagus
         </a>
-      </div>
+      </Gate>
     );
   }
 
   if (!connected) {
     return (
-      <div className="text-center py-20">
-        <h1 className="text-2xl font-bold mb-3">My Names</h1>
-        <p className="text-neutral-400 mb-4">Connect your wallet to manage your names.</p>
-        <button onClick={connect} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
-          Connect Wallet
-        </button>
-      </div>
+      <Gate title="Connect your wallet">
+        <p className="mb-5 text-muted">Connect Pelagus to see the names bound to your wallet.</p>
+        <button onClick={connect} className="reg-btn reg-btn-ink">Connect Wallet</button>
+      </Gate>
     );
   }
 
   if (userNames.loading && userNames.names.length === 0) {
     return (
-      <div className="text-center py-20">
-        <p className="text-neutral-400">Loading your names...</p>
-      </div>
+      <Gate title="My names">
+        <p className="font-mono text-sm uppercase tracking-[0.16em] text-muted">Loading…</p>
+      </Gate>
     );
   }
 
   if (!userNames.loading && userNames.names.length === 0) {
     return (
-      <div className="text-center py-20">
-        <h1 className="text-2xl font-bold mb-3">No Names Registered</h1>
-        <p className="text-neutral-400 mb-4">You don't own any QNNS names yet.</p>
-        <button onClick={() => router.push('/register')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">
-          Register a Name
-        </button>
-      </div>
+      <Gate title="No entries yet">
+        <p className="mb-5 text-muted">You don&apos;t hold any .quai names. Claim your first to start a record.</p>
+        <button onClick={() => router.push('/register')} className="reg-btn reg-btn-stamp">Register a name →</button>
+      </Gate>
     );
   }
 
-  // If editing a specific name
+  // Editing a specific name
   if (selectedHash && selectedData && signer) {
     return (
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
+      <div className="reg-rise mx-auto max-w-2xl">
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => { setSelectedHash(null); setSelectedData(null); }}
-              className="text-sm text-neutral-400 hover:text-white transition-colors"
+              className="font-mono text-xs uppercase tracking-[0.16em] text-muted transition-colors hover:text-stamp"
             >
-              &larr; Back
+              ← Back
             </button>
-            <h1 className="text-2xl font-bold">Edit: {selectedData.name}</h1>
+            <h1 className="font-display text-2xl text-ink">{selectedData.name}.quai</h1>
           </div>
-          <Link
-            href={`/${encodeURIComponent(selectedData.name)}`}
-            className="text-sm text-blue-400 hover:underline"
-          >
-            View public profile
+          <Link href={`/${encodeURIComponent(selectedData.name)}`} className="font-mono text-xs uppercase tracking-[0.14em] text-stamp hover:underline">
+            View public entry →
           </Link>
         </div>
         <ProfileForm nameHash={selectedHash} data={selectedData} signer={signer} onUpdate={handleUpdate} />
@@ -123,57 +121,48 @@ export default function MyNamesPage() {
 
   if (loadingDetail) {
     return (
-      <div className="text-center py-20">
-        <p className="text-neutral-400">Loading name details...</p>
-      </div>
+      <Gate title="My names">
+        <p className="font-mono text-sm uppercase tracking-[0.16em] text-muted">Loading…</p>
+      </Gate>
     );
   }
 
   // Name list view
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">My Names</h1>
-        <Link
-          href="/register"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition-colors"
-        >
-          Register New
-        </Link>
+    <div className="reg-rise mx-auto max-w-3xl">
+      <div className="mb-7 flex items-end justify-between">
+        <h1 className="font-display text-4xl text-ink">My names</h1>
+        <Link href="/register" className="reg-btn reg-btn-ink text-sm">Register new</Link>
       </div>
 
-      <div className="space-y-3">
+      <div className="reg-record divide-y divide-line">
         {userNames.names.map(({ nameHash, data }) => {
           const expiresAt = Number(data.expiresAt);
           return (
             <div
               key={nameHash}
-              className="bg-neutral-900 rounded-xl p-4 flex items-center justify-between hover:bg-neutral-800/70 transition-colors cursor-pointer"
+              className="group flex cursor-pointer items-center justify-between gap-4 p-5 transition-colors hover:bg-paper-sunk"
               onClick={() => selectName(nameHash)}
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-white">{data.name}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded ${expiryBadgeColor(expiresAt)}`}>
-                      {expiryStatusLabel(expiresAt)}
-                    </span>
-                  </div>
-                  <div className="flex gap-4 text-xs text-neutral-500 mt-1">
-                    {expiresAt > 0 && <span>Expires: {timeUntil(expiresAt)}</span>}
-                    <span>Lock: {formatQuai(data.lockAmount)} QUAI</span>
-                  </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-3">
+                  <span className="font-display text-xl text-ink">{data.name}<span className="text-muted">.quai</span></span>
+                  <span className={expiryBadgeColor(expiresAt)}>{expiryStatusLabel(expiresAt)}</span>
+                </div>
+                <div className="mt-1.5 flex flex-wrap gap-x-5 gap-y-1 font-mono text-xs text-muted">
+                  {expiresAt > 0 && <span>Expires in {timeUntil(expiresAt)}</span>}
+                  <span>Lock {formatQuai(data.lockAmount)} QUAI</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-4">
                 <Link
                   href={`/${encodeURIComponent(data.name)}`}
                   onClick={(e) => e.stopPropagation()}
-                  className="text-xs text-neutral-500 hover:text-blue-400 transition-colors"
+                  className="font-mono text-xs uppercase tracking-[0.14em] text-muted transition-colors hover:text-stamp"
                 >
                   View
                 </Link>
-                <span className="text-neutral-600">&rarr;</span>
+                <span className="text-faint transition-transform group-hover:translate-x-1">→</span>
               </div>
             </div>
           );

@@ -41,6 +41,7 @@
  */
 
 export { QNNSClient } from './qnns';
+export { QNSModuleClient } from './modules';
 
 export {
   QNNSNameData,
@@ -57,5 +58,31 @@ export {
   QUAI_ORCHARD_CONFIG,
   QUAI_MAINNET_CONFIG,
 } from './types';
+
+export {
+  QNS_ANCHOR_VERSION,
+  QNS_ANCHOR_BYTES,
+  QNS_MODULE_IDS,
+  QNS_ANCHOR_REGISTRY_ABI,
+  QNS_MODULE_ABI,
+  QNS_STATIC_CONTENT_STORE_ABI,
+  QNSAnchor,
+  PermissionPolicyV1,
+  ResourceBudgetV1,
+  ModuleManifestV1,
+  RedirectManifestV1,
+  StaticFileRefV1,
+  StaticSiteManifestV1,
+  LoadedQNSModule,
+  QNSModuleClientConfig,
+  normalizeQNSName,
+  hashQNSName,
+  encodeQNSAnchor,
+  decodeQNSAnchor,
+  decodeModuleManifestV1,
+  decodeRedirectManifestV1,
+  decodeStaticSiteManifestV1,
+  moduleTopologyLabel,
+} from './modules';
 
 export const VERSION = '2.0.0';

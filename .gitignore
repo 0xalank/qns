@@ -8,12 +8,14 @@ frontend/node_modules/
 !.env.example
 frontend/.env
 frontend/.env.*
+!frontend/.env.example
 
 # Build output
 .next/
 frontend/.next/
 dist/
 frontend/out/
+*.tsbuildinfo
 
 # Hardhat/solidity artifacts
 artifacts/

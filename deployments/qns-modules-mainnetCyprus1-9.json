@@ -1,0 +1,64 @@
+{
+  "network": "mainnetCyprus1",
+  "chainId": "9",
+  "deployer": "0x000b74eE75396be4Dd6985aD2b841458c0775f02",
+  "exampleName": "moduleexample",
+  "nameHash": "0xa71b33a58393108a612f90471cc6ac1967dd2845117e4b69b4a9e9ea7c5a1a48",
+  "qnnsAddress": "0x001d4668f5621ee6211C396243faFe163A057516",
+  "qnsNameResolverAddress": "0x004Aa57E161510Fc07Ad84b9269405Dcb9aC97A6",
+  "qnsAnchorRegistryAddress": "0x000041d9d377ab357DD36e3205C9fB53fda40CC7",
+  "redirectModuleAddress": null,
+  "staticContentStoreAddress": "0x003fe73d3ddde2638853921C6C8997E1338cDE33",
+  "staticSiteModuleAddress": "0x002BA558B2adea163F8d78B2d44ABec15622EdB6",
+  "staticFiles": [
+    {
+      "path": "/index.html",
+      "mimeType": "0x8bc400b5f0051e2c0e2012df7e688da26bfb84d9a4ca18591c19bfbccaf1b7a0",
+      "byteLength": 496,
+      "contentHash": "0x3ec417b7a978d421b5a866b8fe49ea350966e1220ca4d5e37795cf1e0292d365",
+      "contentId": "1",
+      "chunkCount": 1
+    },
+    {
+      "path": "/style.css",
+      "mimeType": "0x6772890ded9158fe439bd4fcfd872dca1df77416ad60c7f31c00184baf4525c2",
+      "byteLength": 585,
+      "contentHash": "0x5e3ab24087431212965e0291150e5165df6cb059568339f0bd32a5db20da2abc",
+      "contentId": "2",
+      "chunkCount": 1
+    }
+  ],
+  "selectedModule": "static-site",
+  "selectedModuleAddress": "0x002BA558B2adea163F8d78B2d44ABec15622EdB6",
+  "selectedManifestHash": "0xe1beaf68869e2813cd6fef180ee57f1b691240760257b5df66865c2fa676cdda",
+  "anchor": "0x000100000000000000000009002ba558b2adea163f8d78b2d44abec15622edb679844e650577da7b679098174ff1e92bab7cad7249e559505c0daf6b2734a6a0e1beaf68869e2813cd6fef180ee57f1b691240760257b5df66865c2fa676cdda",
+  "anchorSet": true,
+  "modulesOnly": true,
+  "ids": {
+    "topologyRedirect": "0xe83c66cbf3d417805e6d19d933996a5e7a030118d14a87ed657885a5af454fd6",
+    "topologyStaticSite": "0x79844e650577da7b679098174ff1e92bab7cad7249e559505c0daf6b2734a6a0",
+    "rendererRedirect": "0x8624f1122126df1c20b0efc11b03f06e0e3f8e04c2900ce39f8e5ab78bc43e25",
+    "rendererStaticSafe": "0x22fd625d7fddc14a58d287fa9c2cc7641e7df64e1fbeb66c781c50f245018712",
+    "mimeTextMarkdown": "0x044c047c4f697f124aaa85c169beaa9bf6cfd5fab7b0898d11832fa9371401cc",
+    "mimeTextPlain": "0xb25570cad408307f58d995c1dadde60bc76e94924d640305a148c9a11f8303bf",
+    "mimeTextHtml": "0x8bc400b5f0051e2c0e2012df7e688da26bfb84d9a4ca18591c19bfbccaf1b7a0",
+    "mimeTextCss": "0x6772890ded9158fe439bd4fcfd872dca1df77416ad60c7f31c00184baf4525c2"
+  },
+  "pelagusResolverConfig": {
+    "chainId": "0x09",
+    "qnnsAddress": "0x001d4668f5621ee6211C396243faFe163A057516",
+    "qnsNameResolverAddress": "0x004Aa57E161510Fc07Ad84b9269405Dcb9aC97A6",
+    "qnsAnchorRegistryAddress": "0x000041d9d377ab357DD36e3205C9fB53fda40CC7",
+    "qnsGatewayBaseUrl": "https://qns.app",
+    "supportedTopologies": [
+      "0xe83c66cbf3d417805e6d19d933996a5e7a030118d14a87ed657885a5af454fd6",
+      "0x79844e650577da7b679098174ff1e92bab7cad7249e559505c0daf6b2734a6a0"
+    ],
+    "supportedRenderers": [
+      "0x8624f1122126df1c20b0efc11b03f06e0e3f8e04c2900ce39f8e5ab78bc43e25",
+      "0x22fd625d7fddc14a58d287fa9c2cc7641e7df64e1fbeb66c781c50f245018712"
+    ]
+  },
+  "demoNameResolver": false,
+  "sourceSiteDir": "/Users/comp/code/soap/qns-payment-code/examples/static-site"
+}

@@ -92,14 +92,15 @@ export function expiryStatusLabel(expiresAt: number): string {
 
 export function expiryStatusColor(expiresAt: number): string {
   const status = expiryStatus(expiresAt);
-  if (status === 'active') return 'text-green-400';
-  if (status === 'grace') return 'text-yellow-400';
-  return 'text-red-400';
+  if (status === 'active') return 'text-good';
+  if (status === 'grace') return 'text-warn';
+  return 'text-bad';
 }
 
+// Returns the stamp-motif class for a name's standing in the registry.
 export function expiryBadgeColor(expiresAt: number): string {
   const status = expiryStatus(expiresAt);
-  if (status === 'active') return 'bg-green-900/50 text-green-400';
-  if (status === 'grace') return 'bg-yellow-900/50 text-yellow-400';
-  return 'bg-red-900/50 text-red-400';
+  if (status === 'active') return 'reg-stamp reg-stamp-good';
+  if (status === 'grace') return 'reg-stamp reg-stamp-warn';
+  return 'reg-stamp reg-stamp-bad';
 }

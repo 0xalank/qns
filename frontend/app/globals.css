@@ -2,7 +2,278 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================================
+   QNS — white / electric-blue, Japanese-futuristic.
+   Pure white field, hairline structure, generous negative space (ma),
+   crisp squared surfaces with subtle HUD corner-ticks. Precision instrument.
+   ========================================================================= */
+
+:root {
+  /* Field & surfaces — white, faint cool cast */
+  --paper:        oklch(0.994 0.001 255);
+  --paper-2:      oklch(1 0 0);            /* pure white surface     */
+  --paper-sunk:   oklch(0.975 0.004 255);  /* faint well             */
+  --ink:          oklch(0.235 0.018 260);
+  --ink-soft:     oklch(0.375 0.020 260);
+  --muted:        oklch(0.545 0.018 260);
+  --faint:        oklch(0.700 0.014 260);
+
+  --line:         oklch(0.930 0.006 255);  /* hairline               */
+  --line-strong:  oklch(0.870 0.010 255);
+
+  /* Electric blue — brand, action, focus */
+  --blue:         oklch(0.555 0.224 263);
+  --blue-deep:    oklch(0.470 0.205 263);
+  --blue-bright:  oklch(0.640 0.205 258);
+  --blue-wash:    oklch(0.967 0.022 258);
+
+  /* Status */
+  --good:         oklch(0.605 0.130 196);  /* cyan-teal: available   */
+  --good-wash:    oklch(0.968 0.030 200);
+  --warn:         oklch(0.700 0.120 78);
+  --warn-wash:    oklch(0.965 0.050 86);
+  --bad:          oklch(0.575 0.195 27);
+  --bad-wash:     oklch(0.966 0.022 27);
+
+  /* internal accent name kept = blue */
+  --stamp:        var(--blue);
+  --stamp-deep:   var(--blue-deep);
+  --stamp-wash:   var(--blue-wash);
+
+  /* Legacy --qns-* aliases remap onto the system. */
+  --qns-ink: var(--ink);
+  --qns-ink-2: var(--ink-soft);
+  --qns-paper: var(--paper);
+  --qns-paper-2: var(--paper-2);
+  --qns-line: var(--line);
+  --qns-line-strong: var(--line-strong);
+  --qns-muted: var(--muted);
+  --qns-blue: var(--blue);
+  --qns-blue-2: var(--blue-deep);
+  --qns-blue-soft: var(--blue-wash);
+  --qns-copper: var(--blue);
+  --qns-green: var(--good);
+  --qns-lime: var(--good-wash);
+  --qns-error: var(--bad);
+
+  --tick: 11px; /* corner-tick length */
+}
+
+html {
+  min-height: 100%;
+  background: var(--paper);
+  overflow-x: hidden; /* let full-bleed glows span the viewport without a h-scrollbar */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
 body {
-  background-color: #0a0a0a;
-  color: #ffffff;
+  min-height: 100%;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--font-sans), "Segoe UI", system-ui, sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1;
+  letter-spacing: 0.005em;
+}
+
+::selection { background: var(--blue); color: #fff; }
+
+/* ---- Typography primitives ------------------------------------------- */
+
+.font-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+.font-mono { font-family: var(--font-mono), ui-monospace, monospace; }
+
+/* Small technical labels — sparse, blue, wide-tracked. */
+.reg-kicker {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+.reg-label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Vertical kana / index accent (writing-mode top-to-bottom). */
+.reg-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-family: var(--font-sans), sans-serif;
+  letter-spacing: 0.35em;
+}
+
+/* ---- Status chip (replaces the rubber stamp) ------------------------- */
+.reg-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid color-mix(in oklch, currentColor 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklch, currentColor 8%, var(--paper-2));
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--muted);
+}
+.reg-stamp::before {
+  content: "";
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in oklch, currentColor 18%, transparent);
+}
+.reg-stamp-good { color: var(--good); }
+.reg-stamp-warn { color: var(--warn); }
+.reg-stamp-bad  { color: var(--bad); }
+.reg-stamp-mark { color: var(--blue); }
+
+/* ---- Surfaces -------------------------------------------------------- */
+.reg-frame {
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  border-radius: 0;
+}
+/* Card with HUD corner-ticks at top-left + bottom-right. */
+.reg-record {
+  position: relative;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  border-radius: 0;
+  box-shadow: 0 1px 2px oklch(0.235 0.018 260 / 0.03), 0 24px 48px -36px oklch(0.235 0.018 260 / 0.25);
+}
+.reg-record::before,
+.reg-record::after {
+  content: "";
+  position: absolute;
+  width: var(--tick);
+  height: var(--tick);
+  border-color: var(--blue);
+  pointer-events: none;
+}
+.reg-record::before { top: -1px; left: -1px; border-top: 1.5px solid; border-left: 1.5px solid; }
+.reg-record::after  { bottom: -1px; right: -1px; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+
+.reg-masthead { border-top: 1px solid var(--line); }
+.reg-rule { border-bottom: 1px solid var(--line); }
+
+/* ---- Inputs ---------------------------------------------------------- */
+.reg-input {
+  width: 100%;
+  background: var(--paper-2);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  padding: 0.7rem 0.85rem;
+  color: var(--ink);
+  font-size: 0.95rem;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+.reg-input::placeholder { color: var(--faint); }
+.reg-input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-wash);
+}
+.reg-input-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.85rem;
+}
+
+/* ---- Buttons --------------------------------------------------------- */
+.reg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0;
+  padding: 0.62rem 1.2rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 120ms ease, background-color 140ms ease, color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+.reg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.reg-btn:active:not(:disabled) { transform: translateY(1px); }
+
+/* Primary = electric blue */
+.reg-btn-stamp {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+.reg-btn-stamp:hover:not(:disabled) {
+  background: var(--blue-deep);
+  border-color: var(--blue-deep);
+  box-shadow: 0 0 0 3px var(--blue-wash);
+}
+
+/* Neutral dark */
+.reg-btn-ink {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+.reg-btn-ink:hover:not(:disabled) { background: var(--ink-soft); }
+
+/* Hairline ghost */
+.reg-btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+.reg-btn-ghost:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+
+.reg-btn-danger {
+  background: transparent;
+  color: var(--bad);
+  border-color: color-mix(in oklch, var(--bad) 40%, transparent);
+}
+.reg-btn-danger:hover:not(:disabled) { background: var(--bad); color: #fff; border-color: var(--bad); }
+
+/* ---- Code / hashes --------------------------------------------------- */
+.reg-code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.82rem;
+  background: var(--paper-sunk);
+  border: 1px solid var(--line);
+  padding: 0.45rem 0.65rem;
+  color: var(--ink-soft);
+  border-radius: 0;
+}
+
+/* ---- Motion ---------------------------------------------------------- */
+@keyframes reg-rise {
+  from { opacity: 0; transform: translateY(9px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes reg-chip-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.reg-rise { animation: reg-rise 560ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.reg-stamped { animation: reg-chip-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reg-rise, .reg-stamped { animation: none; }
+  * { scroll-behavior: auto !important; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
 }

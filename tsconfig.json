@@ -14,6 +14,11 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["sdk/**/*", "scripts/**/*", "test/**/*"],
+  "include": [
+    "sdk/index.ts",
+    "sdk/qnns.ts",
+    "sdk/modules.ts",
+    "sdk/types.ts"
+  ],
   "exclude": ["node_modules", "dist", "artifacts", "cache"]
 }

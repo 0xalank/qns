@@ -12,7 +12,7 @@ export function WalletConnect() {
         href="https://pelaguswallet.io"
         target="_blank"
         rel="noopener noreferrer"
-        className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+        className="reg-btn reg-btn-stamp"
       >
         Install Pelagus
       </a>
@@ -22,12 +22,13 @@ export function WalletConnect() {
   if (connected && address) {
     return (
       <div className="flex items-center gap-3">
-        <span className="text-sm font-mono text-neutral-300 bg-neutral-800 px-3 py-1.5 rounded-lg">
-          {truncateAddress(address)}
+        <span className="hidden items-center gap-2 border border-line-strong bg-paper-2 px-3 py-1.5 sm:inline-flex">
+          <span className="h-1.5 w-1.5 rounded-full bg-good" />
+          <span className="font-mono text-xs text-ink">{truncateAddress(address)}</span>
         </span>
         <button
           onClick={disconnect}
-          className="text-sm text-neutral-400 hover:text-white transition-colors"
+          className="font-mono text-xs uppercase tracking-[0.16em] text-muted transition-colors hover:text-stamp"
         >
           Disconnect
         </button>
@@ -37,14 +38,10 @@ export function WalletConnect() {
 
   return (
     <div className="flex items-center gap-2">
-      <button
-        onClick={connect}
-        disabled={connecting}
-        className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg transition-colors"
-      >
-        {connecting ? 'Connecting...' : 'Connect Wallet'}
+      <button onClick={connect} disabled={connecting} className="reg-btn reg-btn-ink">
+        {connecting ? 'Connecting…' : 'Connect Wallet'}
       </button>
-      {error && <span className="text-xs text-red-400">{error}</span>}
+      {error && <span className="font-mono text-xs text-bad">{error}</span>}
     </div>
   );
 }
