@@ -10,6 +10,7 @@ interface ProfileFormProps {
   nameHash: string;
   data: qnns.FullNameData;
   signer: Signer;
+  ownerAddress?: string;
   onUpdate: () => void;
 }
 
@@ -30,7 +31,7 @@ function SaveButton({ active, label, ...props }: { active: boolean; label: strin
   );
 }
 
-export function ProfileForm({ nameHash, data, signer, onUpdate }: ProfileFormProps) {
+export function ProfileForm({ nameHash, data, signer, ownerAddress, onUpdate }: ProfileFormProps) {
   const [displayName, setDisplayName] = useState(data.displayName);
   const [description, setDescription] = useState(data.description);
   const [url, setUrl] = useState(data.url);
@@ -200,7 +201,7 @@ export function ProfileForm({ nameHash, data, signer, onUpdate }: ProfileFormPro
 
       {/* Avatar */}
       <Section title="Avatar">
-        <AvatarUpload currentAvatar={data.avatar} onUpload={handleAvatarUpload} />
+        <AvatarUpload currentAvatar={data.avatar} ownerAddress={ownerAddress} onUpload={handleAvatarUpload} />
       </Section>
 
       {/* Profile Info */}

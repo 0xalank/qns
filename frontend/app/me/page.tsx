@@ -18,7 +18,7 @@ function Gate({ title, children }: { title: string; children: React.ReactNode })
   );
 }
 
-export default function MyNamesPage() {
+export default function MyDomainsPage() {
   const router = useRouter();
   const { connected, address, signer, connect, pelagusInstalled } = useWallet();
   const userNames = useUserNames();
@@ -62,7 +62,7 @@ export default function MyNamesPage() {
   if (!pelagusInstalled) {
     return (
       <Gate title="Wallet required">
-        <p className="mb-5 text-muted">Install Pelagus to manage the names you hold.</p>
+        <p className="mb-5 text-muted">Install Pelagus to manage the domains you hold.</p>
         <a href="https://pelaguswallet.io" target="_blank" rel="noopener noreferrer" className="reg-btn reg-btn-stamp">
           Install Pelagus
         </a>
@@ -73,7 +73,7 @@ export default function MyNamesPage() {
   if (!connected) {
     return (
       <Gate title="Connect your wallet">
-        <p className="mb-5 text-muted">Connect Pelagus to see the names bound to your wallet.</p>
+        <p className="mb-5 text-muted">Connect Pelagus to see the domains bound to your wallet.</p>
         <button onClick={connect} className="reg-btn reg-btn-ink">Connect Wallet</button>
       </Gate>
     );
@@ -81,7 +81,7 @@ export default function MyNamesPage() {
 
   if (userNames.loading && userNames.names.length === 0) {
     return (
-      <Gate title="My names">
+      <Gate title="My domains">
         <p className="font-mono text-sm uppercase tracking-[0.16em] text-muted">Loading…</p>
       </Gate>
     );
@@ -90,8 +90,8 @@ export default function MyNamesPage() {
   if (!userNames.loading && userNames.names.length === 0) {
     return (
       <Gate title="No entries yet">
-        <p className="mb-5 text-muted">You don&apos;t hold any .quai names. Claim your first to start a record.</p>
-        <button onClick={() => router.push('/register')} className="reg-btn reg-btn-stamp">Register a name →</button>
+        <p className="mb-5 text-muted">You don&apos;t hold any .quai domains. Claim your first to start a record.</p>
+        <button onClick={() => router.push('/register')} className="reg-btn reg-btn-stamp">Register a domain →</button>
       </Gate>
     );
   }
@@ -114,24 +114,29 @@ export default function MyNamesPage() {
             View public entry →
           </Link>
         </div>
-        <ProfileForm nameHash={selectedHash} data={selectedData} signer={signer} onUpdate={handleUpdate} />
+        <ProfileForm nameHash={selectedHash} data={selectedData} signer={signer} ownerAddress={address || undefined} onUpdate={handleUpdate} />
       </div>
     );
   }
 
   if (loadingDetail) {
     return (
-      <Gate title="My names">
+      <Gate title="My domains">
         <p className="font-mono text-sm uppercase tracking-[0.16em] text-muted">Loading…</p>
       </Gate>
     );
   }
 
-  // Name list view
+  // Domain list view
   return (
     <div className="reg-rise mx-auto max-w-3xl">
       <div className="mb-7 flex items-end justify-between">
-        <h1 className="font-display text-4xl text-ink">My names</h1>
+        <div>
+          <h1 className="font-display text-4xl text-ink">My domains</h1>
+          {userNames.loading && userNames.names.length > 0 && (
+            <p className="mt-2 font-mono text-xs uppercase tracking-[0.14em] text-muted">Refreshing chain state…</p>
+          )}
+        </div>
         <Link href="/register" className="reg-btn reg-btn-ink text-sm">Register new</Link>
       </div>
 

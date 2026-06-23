@@ -1,0 +1,59 @@
+specVersion: 1.0.0
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: QNNS
+    network: quai
+    source:
+      address: "0x001d4668f5621ee6211C396243faFe163A057516"
+      abi: QNNS
+      startBlock: 8652267
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.8
+      language: wasm/assemblyscript
+      entities:
+        - Account
+        - Domain
+        - Auction
+        - DomainEvent
+      abis:
+        - name: QNNS
+          file: ../artifacts/contracts/QNNS.sol/QNNS.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: NameRegistered(indexed bytes32,string,indexed address,uint256,uint256)
+          handler: handleNameRegistered
+        - event: AuctionStarted(indexed uint256,indexed bytes32,string,indexed address,uint256,uint256)
+          handler: handleAuctionStarted
+        - event: AuctionBid(indexed uint256,indexed address,uint256,uint256)
+          handler: handleAuctionBid
+        - event: AuctionFinalized(indexed uint256,indexed bytes32,indexed address,uint256,uint256)
+          handler: handleAuctionFinalized
+        - event: NameRenewed(indexed bytes32,indexed address,uint256,uint256)
+          handler: handleNameRenewed
+        - event: NameRenewedFromLock(indexed bytes32,indexed address,uint256,uint256)
+          handler: handleNameRenewedFromLock
+        - event: NameReleased(indexed bytes32,indexed address,uint256)
+          handler: handleNameReleased
+        - event: NameExpired(indexed bytes32,indexed address,uint256)
+          handler: handleNameExpired
+        - event: NameRevoked(indexed bytes32,indexed address,string)
+          handler: handleNameRevoked
+        - event: NameAssigned(indexed bytes32,indexed address)
+          handler: handleNameAssigned
+        - event: NameBlocked(indexed bytes32)
+          handler: handleNameBlocked
+        - event: QuaiAddressUpdated(indexed bytes32,address)
+          handler: handleQuaiAddressUpdated
+        - event: QiPaymentCodeUpdated(indexed bytes32,string)
+          handler: handleQiPaymentCodeUpdated
+        - event: NostrPubkeyUpdated(indexed bytes32,string)
+          handler: handleNostrPubkeyUpdated
+        - event: ContentHashUpdated(indexed bytes32,bytes)
+          handler: handleContentHashUpdated
+        - event: MarketplaceBidAccepted(indexed bytes32,uint256,indexed address,indexed address,uint256)
+          handler: handleMarketplaceBidAccepted
+      file: ./src/qnns.ts

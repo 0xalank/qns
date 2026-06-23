@@ -19,19 +19,27 @@ const specs = [
 const faqs = [
   {
     q: 'What is an on-chain website?',
-    a: 'An on-chain website is a website whose code (HTML, CSS, files) is stored directly inside smart contract variables on the Quai blockchain. It does not run on AWS, GoDaddy, or any private server. It is serverless, censorship-resistant, and remains online as long as its module stays available and the name anchor remains active.',
+    a: 'A QNS website can be published as a static site module: the HTML and CSS bytes live in contract state on Quai, and the loader renders those bytes directly from chain. A QNS name can point to that module through its on-chain record.',
   },
   {
-    q: 'How do I visit a QNS site?',
-    a: 'You can visit QNS sites using a Web3-compatible browser or wallet extension (such as Pelagus). Just enter the address like "qns://satoshi" to load files directly from Quai Network. Alternatively, Web2 gateways can route requests to the blockchain.',
+    q: 'How does registration work?',
+    a: 'Names with 7 or more characters register instantly. The deployed registry charges a 200 QUAI registration fee, a 100 QUAI refundable lock, and the first-year renewal price. Names with 1 to 6 characters use a 24-hour English auction.',
+  },
+  {
+    q: 'How do short-name auctions work?',
+    a: 'The live auction floors are 1,000 QUAI for 4-6 character names and 5,000 QUAI for 1-3 character names. Bids run for 24 hours, and any bid in the final 30 minutes extends the auction window.',
+  },
+  {
+    q: 'How do I open a QNS site?',
+    a: 'With QNS-aware tooling such as Pelagus, a .quai name or module address can resolve to the on-chain loader. The public app also lets you look up names, profiles, and static modules without running your own indexer.',
   },
   {
     q: 'Can I transfer a QNS name?',
-    a: 'The live QNNS registry mints names as ERC-721 records. Direct transfers are fee-gated by the contract, and marketplace bids can be accepted on-chain. The current deployment is not soulbound.',
+    a: 'Yes. The current deployment mints QNS names as ERC-721 records. Direct transfers must use the contract transfer method and pay the required fee, and marketplace bids can be accepted on-chain.',
   },
   {
     q: 'How does domain validity and renewal work?',
-    a: 'Names register for one year. They can be renewed by paying the yearly fee, or the owner can renew from the lock deposit if enough is available. After expiry there is a 30-day grace period before the name can be expired and registered again.',
+    a: 'Names are active for one year at a time. Owners can renew by paying the yearly fee or by using enough of their lock deposit. After expiry, there is a 30-day grace period before the name can be expired and registered again.',
   },
 ];
 
@@ -39,7 +47,7 @@ const simplifiedSteps = [
   {
     no: '01',
     title: 'Search & Pick',
-    desc: 'Enter any username in the search bar. Check its availability instantly on-chain.',
+    desc: 'Enter any username and search the deployed registry for availability.',
   },
   {
     no: '02',

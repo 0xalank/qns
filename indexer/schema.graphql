@@ -1,0 +1,50 @@
+type Account @entity(immutable: false) {
+  id: ID!
+  domains: [Domain!]! @derivedFrom(field: "owner")
+}
+
+type Domain @entity(immutable: false) {
+  id: ID!
+  nameHash: Bytes!
+  tokenId: BigInt
+  name: String
+  owner: Account
+  active: Boolean!
+  lockAmount: BigInt!
+  auctionId: BigInt
+  expiresAt: BigInt!
+  quaiAddress: Bytes
+  qiPaymentCode: String
+  nostrPubkey: String
+  contentHash: Bytes
+  createdAt: BigInt!
+  createdBlock: BigInt!
+  updatedAt: BigInt!
+  updatedBlock: BigInt!
+  transferCount: Int!
+}
+
+type Auction @entity(immutable: false) {
+  id: ID!
+  auctionId: BigInt!
+  nameHash: Bytes!
+  name: String!
+  initiator: Account!
+  highestBidder: Account!
+  highestBid: BigInt!
+  startTime: BigInt!
+  endTime: BigInt!
+  finalized: Boolean!
+  winner: Account
+}
+
+type DomainEvent @entity(immutable: true) {
+  id: ID!
+  domain: Domain
+  nameHash: Bytes!
+  kind: String!
+  account: Account
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}

@@ -1,6 +1,7 @@
 'use client';
 
 import { FullNameData } from '@/lib/qnns';
+import { useResolvedAvatar } from '@/hooks/useAvatar';
 import { CopyButton } from './CopyButton';
 import { truncateAddress, truncatePaymentCode, formatDate, timeUntil, formatQuai, expiryStatusLabel, expiryBadgeColor } from '@/lib/utils';
 import Link from 'next/link';
@@ -33,9 +34,11 @@ function CodeRow({ value, display, extra }: { value: string; display: string; ex
 
 export function ProfileCard({ name, data, owner, isOwner }: ProfileCardProps) {
   const expiresAt = Number(data.expiresAt);
-  const avatarUrl = data.avatar && data.avatar !== '0x'
-    ? `data:image/png;base64,${Buffer.from(data.avatar.slice(2), 'hex').toString('base64')}`
+  const { loading: avatarLoading, avatar } = useResolvedAvatar(data.avatar, owner);
+  const avatarUrl = avatar.kind === 'image' || (avatar.kind === 'nft' && avatar.verified)
+    ? avatar.imageUrl
     : null;
+  const nftAvatarError = avatar.kind === 'nft' && !avatar.verified ? avatar.error : null;
 
   const socials = [
     data.twitter && { label: 'X', value: `@${data.twitter}`, href: `https://x.com/${data.twitter}` },
@@ -49,11 +52,18 @@ export function ProfileCard({ name, data, owner, isOwner }: ProfileCardProps) {
       {/* Masthead */}
       <header className="reg-masthead flex items-start justify-between gap-4 border-b border-line-strong p-6 sm:p-8">
         <div className="flex min-w-0 items-start gap-5">
-          <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden border border-line-strong bg-paper-sunk">
+          <div className="relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden border border-line-strong bg-paper-sunk">
             {avatarUrl ? (
               <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+            ) : avatarLoading ? (
+              <span className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">Load</span>
             ) : (
               <span className="font-display text-4xl text-faint">{name.charAt(0).toUpperCase()}</span>
+            )}
+            {avatar.kind === 'nft' && avatar.verified && (
+              <span className="absolute bottom-1 right-1 border border-stamp bg-paper-2 px-1.5 py-0.5 font-mono text-[0.55rem] uppercase tracking-[0.12em] text-stamp">
+                NFT
+              </span>
             )}
           </div>
           <div className="min-w-0">
@@ -61,6 +71,9 @@ export function ProfileCard({ name, data, owner, isOwner }: ProfileCardProps) {
               {name}<span className="text-muted">.quai</span>
             </h1>
             {data.displayName && <p className="mt-1.5 text-muted">{data.displayName}</p>}
+            {nftAvatarError && (
+              <p className="mt-2 text-xs text-bad">NFT avatar not shown: {nftAvatarError}</p>
+            )}
           </div>
         </div>
         <span className={`${expiryBadgeColor(expiresAt)} shrink-0`}>{expiryStatusLabel(expiresAt)}</span>

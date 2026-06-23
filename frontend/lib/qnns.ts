@@ -1,5 +1,5 @@
-import { Contract, Signer, keccak256, solidityPacked, getBytes } from 'quais';
-import { QNNS_ABI, QNNS_CONTRACT_ADDRESS } from './constants';
+import { Contract, Signer, keccak256, solidityPacked, getBytes, Shard } from 'quais';
+import { QNNS_ABI, QNNS_CONTRACT_ADDRESS, QNNS_EVENT_SCAN_START_BLOCK } from './constants';
 import { getReadOnlyProvider } from './wallet';
 
 // ============ Types ============
@@ -54,6 +54,28 @@ function getReadContract(): Contract {
 
 function getWriteContract(signer: Signer): Contract {
   return new Contract(QNNS_CONTRACT_ADDRESS, QNNS_ABI, signer);
+}
+
+const EVENT_SCAN_CHUNK_SIZE = 9999;
+
+async function queryFilterInChunks(contract: Contract, filter: any, fromBlock: number = QNNS_EVENT_SCAN_START_BLOCK): Promise<any[]> {
+  const latestBlock = await getReadOnlyProvider().getBlockNumber(Shard.Cyprus1);
+  const events: any[] = [];
+
+  if (!Number.isFinite(fromBlock) || fromBlock > latestBlock) {
+    return events;
+  }
+
+  for (let start = fromBlock; start <= latestBlock; start += EVENT_SCAN_CHUNK_SIZE + 1) {
+    const end = Math.min(start + EVENT_SCAN_CHUNK_SIZE, latestBlock);
+    try {
+      events.push(...await contract.queryFilter(filter, start, end));
+    } catch (error) {
+      console.warn('[QNNS] Failed to scan event range', { start, end, error });
+    }
+  }
+
+  return events;
 }
 
 // ============ Read — Name Data ============
@@ -420,43 +442,28 @@ export async function getRecentFinalizations(count: number = 20): Promise<Array<
 
 /**
  * Get all names owned by an address.
- * Uses AuctionFinalized events to find names won by this address,
- * then verifies current ownership via ownerOf.
+ * Scans ERC-721 Transfer events to the owner in RPC-safe chunks, then verifies
+ * current ownership via ownerOf. Transfer covers mints, finalized auctions,
+ * direct transfers, and marketplace transfers.
  */
 export async function getNamesOwnedBy(address: string): Promise<string[]> {
   const contract = getReadContract();
 
   // First check if user has any balance
   const balance = await contract.balanceOf(address);
-  console.log('[getNamesOwnedBy] Balance for', address, ':', balance.toString());
   if (balance === BigInt(0)) {
     return [];
   }
 
-  // Query AuctionFinalized events where this address won
-  const finalizedFilter = contract.filters.AuctionFinalized(null, null, address);
-  const finalized = await contract.queryFilter(finalizedFilter, -100000);
-  console.log('[getNamesOwnedBy] AuctionFinalized events:', finalized.length);
-
-  // Also query Transfer events TO this address (for marketplace purchases)
-  const transferFilter = contract.filters.Transfer(null, address);
-  const transfers = await contract.queryFilter(transferFilter, -100000);
-  console.log('[getNamesOwnedBy] Transfer events:', transfers.length);
+  const transfers = await queryFilterInChunks(contract, contract.filters.Transfer(null, address));
 
   // Collect unique nameHashes
   const nameHashes = new Set<string>();
-
-  for (const e of finalized) {
-    const nameHash = (e as any).args[1]; // bytes32 nameHash
-    console.log('[getNamesOwnedBy] Finalized nameHash:', nameHash);
-    nameHashes.add(nameHash);
-  }
 
   for (const e of transfers) {
     const tokenId = (e as any).args[2];
     // tokenId is the uint256 version of nameHash
     const nameHash = '0x' + BigInt(tokenId).toString(16).padStart(64, '0');
-    console.log('[getNamesOwnedBy] Transfer nameHash:', nameHash);
     nameHashes.add(nameHash);
   }
 

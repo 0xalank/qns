@@ -42,13 +42,27 @@ export function AuctionFlow() {
   const pricing = usePricing();
   const searchParams = useSearchParams();
 
-  const [nameInput, setNameInput] = useState(searchParams.get('name') || '');
-  const targetName = nameInput.toLowerCase().trim();
+  const initialName = (searchParams.get('name') || '').toLowerCase().trim();
+  const [nameInput, setNameInput] = useState(initialName);
+  const [submittedName, setSubmittedName] = useState(initialName);
+  const draftName = nameInput.toLowerCase().trim();
+  const targetName = submittedName;
+  const nameErr = draftName ? nameValidationError(draftName) : null;
+  const searchedNameIsCurrent = !!targetName && targetName === draftName && !nameErr;
 
   const registration = useRegistration(signer, address, targetName || null);
+  const registrationMatchesSearch = searchedNameIsCurrent && registration.name === targetName;
+  const searchPending = searchedNameIsCurrent && (!registrationMatchesSearch || registration.step === 'loading');
   const [bidInput, setBidInput] = useState('');
   const [quaiAddr, setQuaiAddr] = useState('');
   const [qiCode, setQiCode] = useState('');
+  const [yearlyFee, setYearlyFee] = useState<bigint | null>(null);
+
+  const handleNameSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!draftName || nameErr) return;
+    setSubmittedName(draftName);
+  };
 
   useEffect(() => {
     if (connected) {
@@ -65,13 +79,34 @@ export function AuctionFlow() {
 
   // Set default bid based on name length
   useEffect(() => {
-    if (targetName && pricing.auctionFloor1to3 && pricing.auctionFloor4to6) {
+    if (searchedNameIsCurrent && pricing.auctionFloor1to3 && pricing.auctionFloor4to6) {
       const floor = pricing.getAuctionFloor(targetName.length);
       if (floor) {
         setBidInput(formatQuai(floor));
       }
     }
-  }, [targetName, pricing]);
+  }, [searchedNameIsCurrent, targetName, pricing.auctionFloor1to3, pricing.auctionFloor4to6, pricing.getAuctionFloor]);
+
+  useEffect(() => {
+    let mounted = true;
+    setYearlyFee(null);
+
+    if (!searchedNameIsCurrent) {
+      return;
+    }
+
+    pricing.getYearlyPrice(targetName.length)
+      .then((fee) => {
+        if (mounted) setYearlyFee(fee);
+      })
+      .catch(() => {
+        if (mounted) setYearlyFee(null);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [searchedNameIsCurrent, targetName, pricing.getYearlyPrice]);
 
   if (!pelagusInstalled) {
     return (
@@ -96,7 +131,7 @@ export function AuctionFlow() {
   }
 
   // Loading state
-  if (registration.step === 'loading' && targetName) {
+  if (searchPending) {
     return (
       <Shell center>
         <p className="font-mono text-sm uppercase tracking-[0.16em] text-muted">
@@ -107,7 +142,7 @@ export function AuctionFlow() {
   }
 
   // Done state
-  if (registration.step === 'done') {
+  if (registrationMatchesSearch && registration.step === 'done') {
     if (registration.error === 'This name is already registered') {
       return (
         <Shell center>
@@ -131,15 +166,24 @@ export function AuctionFlow() {
         )}
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link href={`/${encodeURIComponent(registration.name)}`} className="reg-btn reg-btn-stamp">View profile</Link>
-          <Link href="/me" className="reg-btn reg-btn-ghost">My names</Link>
-          <button onClick={registration.reset} className="reg-btn reg-btn-ghost">Register another</button>
+          <Link href="/me" className="reg-btn reg-btn-ghost">My domains</Link>
+          <button
+            onClick={() => {
+              setNameInput('');
+              setSubmittedName('');
+              registration.reset();
+            }}
+            className="reg-btn reg-btn-ghost"
+          >
+            Register another
+          </button>
         </div>
       </Shell>
     );
   }
 
   // Error state
-  if (registration.step === 'error') {
+  if (registrationMatchesSearch && registration.step === 'error') {
     return (
       <Shell>
         <h2 className="font-display text-2xl text-bad">Registration failed</h2>
@@ -150,7 +194,7 @@ export function AuctionFlow() {
   }
 
   // Finalize auction — auction ended, winner finalizes
-  if (registration.step === 'ended' || registration.step === 'finalizing') {
+  if (registrationMatchesSearch && (registration.step === 'ended' || registration.step === 'finalizing')) {
     const isWinner = registration.isWinner;
     return (
       <Shell>
@@ -211,7 +255,7 @@ export function AuctionFlow() {
   }
 
   // Active auction — countdown + bidding
-  if (registration.step === 'active' || registration.step === 'bidding') {
+  if (registrationMatchesSearch && (registration.step === 'active' || registration.step === 'bidding')) {
     return (
       <Shell>
         <p className="reg-kicker">Auction in progress</p>
@@ -263,7 +307,7 @@ export function AuctionFlow() {
   }
 
   // Starting auction state
-  if (registration.step === 'starting') {
+  if (registrationMatchesSearch && registration.step === 'starting') {
     return (
       <Shell center>
         <p className="font-mono text-sm uppercase tracking-[0.16em] text-muted">
@@ -275,7 +319,7 @@ export function AuctionFlow() {
   }
 
   // Registering state (instant registration)
-  if (registration.step === 'registering') {
+  if (registrationMatchesSearch && registration.step === 'registering') {
     return (
       <Shell center>
         <p className="font-mono text-sm uppercase tracking-[0.16em] text-muted">
@@ -287,34 +331,48 @@ export function AuctionFlow() {
   }
 
   // Idle — show appropriate form based on name length
-  const nameErr = targetName ? nameValidationError(targetName) : null;
-  const tierInfo = targetName && !nameErr ? getRegistrationTier(targetName) : null;
-  const isInstant = registration.registrationType === 'instant';
+  const tierInfo = draftName && !nameErr ? getRegistrationTier(draftName) : null;
+  const previewIsInstant = draftName.length >= 7;
+  const isInstant = registrationMatchesSearch && registration.registrationType === 'instant';
 
   return (
     <div className="reg-record reg-rise p-8">
-      <div className="mb-5">
+      <form onSubmit={handleNameSearch} className="mb-5">
         <FieldLabel>Name</FieldLabel>
-        <div className="flex items-baseline border border-line-strong bg-paper-sunk px-4 focus-within:border-stamp">
-          <input
-            type="text"
-            value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
-            placeholder="yoursite"
-            autoComplete="off"
-            spellCheck={false}
-            className="w-full bg-transparent py-3 font-display text-2xl text-ink outline-none placeholder:text-faint"
-          />
-          <span className="font-display text-xl text-muted">.quai</span>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="flex flex-1 items-baseline border border-line-strong bg-paper-sunk px-4 focus-within:border-stamp">
+            <input
+              type="text"
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              placeholder="yoursite"
+              autoComplete="off"
+              spellCheck={false}
+              className="w-full bg-transparent py-3 font-display text-2xl text-ink outline-none placeholder:text-faint"
+            />
+            <span className="font-display text-xl text-muted">.quai</span>
+          </div>
+          <button
+            type="submit"
+            disabled={!draftName || !!nameErr || searchPending}
+            className="reg-btn reg-btn-stamp min-h-[3.25rem] px-6"
+          >
+            Search
+          </button>
         </div>
         {nameErr && <p className="mt-1.5 font-mono text-xs text-bad">✕ {nameErr}</p>}
         {tierInfo && (
           <p className="mt-2 flex items-center gap-2 text-sm text-muted">
-            <span className={`reg-stamp ${isInstant ? 'reg-stamp-good' : 'reg-stamp-warn'}`}>{tierInfo.tier}</span>
+            <span className={`reg-stamp ${previewIsInstant ? 'reg-stamp-good' : 'reg-stamp-warn'}`}>{tierInfo.tier}</span>
             <span>{tierInfo.description}</span>
           </p>
         )}
-      </div>
+        {draftName && !nameErr && !searchedNameIsCurrent && (
+          <p className="mt-2 font-mono text-xs uppercase tracking-[0.14em] text-muted">
+            Press Search to check this name.
+          </p>
+        )}
+      </form>
 
       {/* Instant Registration (7+ chars) */}
       {isInstant && targetName && !nameErr && (
@@ -324,13 +382,13 @@ export function AuctionFlow() {
             <div className="space-y-1.5 text-sm">
               <CostRow label="Registration fee" value={`${pricing.registrationFee7Plus ? formatQuai(pricing.registrationFee7Plus) : '200'} QUAI`} />
               <CostRow label="Lock deposit (refundable)" value={`${pricing.minLock ? formatQuai(pricing.minLock) : '100'} QUAI`} />
-              <CostRow label="First-year fee" value="~5 QUAI" />
+              <CostRow label="First-year fee" value={yearlyFee ? `${formatQuai(yearlyFee)} QUAI` : 'Loading'} />
               <CostRow
                 total
                 label="Total"
-                value={`~${pricing.registrationFee7Plus && pricing.minLock
-                  ? formatQuai(pricing.registrationFee7Plus + pricing.minLock + BigInt(5e18))
-                  : '305'} QUAI`}
+                value={pricing.registrationFee7Plus && pricing.minLock && yearlyFee
+                  ? `${formatQuai(pricing.registrationFee7Plus + pricing.minLock + yearlyFee)} QUAI`
+                  : 'Loading'}
               />
             </div>
           </div>
@@ -350,10 +408,10 @@ export function AuctionFlow() {
             onClick={async () => {
               try {
                 const { getYearlyPriceQuaiByLength } = await import('@/lib/qnns');
-                const yearlyFee = await getYearlyPriceQuaiByLength(targetName.length);
-                const regFee = pricing.registrationFee7Plus || BigInt(200e18);
-                const lock = pricing.minLock || BigInt(100e18);
-                const total = regFee + lock + yearlyFee;
+                const liveYearlyFee = yearlyFee || await getYearlyPriceQuaiByLength(targetName.length);
+                const regFee = pricing.registrationFee7Plus || parseQuai('200');
+                const lock = pricing.minLock || parseQuai('100');
+                const total = regFee + lock + liveYearlyFee;
                 await registration.registerInstant(targetName, quaiAddr, qiCode, total);
               } catch {
                 // Error handling
@@ -368,7 +426,7 @@ export function AuctionFlow() {
       )}
 
       {/* Auction (1-6 chars) */}
-      {!isInstant && targetName && !nameErr && (
+      {registrationMatchesSearch && !isInstant && targetName && !nameErr && (
         <div>
           <div className="mb-5 border border-line bg-paper-sunk p-4">
             <p className="reg-label mb-3">Auction terms</p>
@@ -438,7 +496,7 @@ export function AuctionFlow() {
       )}
 
       {/* No name entered yet */}
-      {!targetName && (
+      {!draftName && (
         <div className="reg-masthead mt-2 pt-5">
           <p className="reg-label mb-3">How names are priced</p>
           <dl className="divide-y divide-line">

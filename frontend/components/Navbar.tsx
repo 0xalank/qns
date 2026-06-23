@@ -97,7 +97,7 @@ export function Navbar() {
             <NavLink href="/register" label="Register" />
             <NavLink href="/ecosystem" label="Ecosystem" />
             <DocsMenu />
-            {connected && <NavLink href="/me" label="My Names" />}
+            {connected && <NavLink href="/me" label="My Domains" />}
           </div>
         </div>
         <div className="flex items-center gap-4">

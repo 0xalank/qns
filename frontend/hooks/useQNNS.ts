@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import * as qnns from '@/lib/qnns';
+import { getDomainHashesOwnedByFromSubgraph } from '@/lib/qnnsGraph';
 
 export function useNameLookup() {
   const [data, setData] = useState<qnns.FullNameData | null>(null);
@@ -139,32 +140,99 @@ export function useRecentActivity() {
 }
 
 export function useUserNames() {
-  const [names, setNames] = useState<Array<{ nameHash: string; data: qnns.NameCore }>>([]);
+  type UserNameRecord = { nameHash: string; data: qnns.NameCore };
+  type CachedUserNameRecord = {
+    nameHash: string;
+    data: Omit<qnns.NameCore, 'lockAmount' | 'auctionId' | 'expiresAt'> & {
+      lockAmount: string;
+      auctionId: string;
+      expiresAt: string;
+    };
+  };
+
+  const [names, setNames] = useState<UserNameRecord[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const cacheKey = (address: string) => `qns:user-domains:v1:${address.toLowerCase()}`;
+
+  const readCachedNames = useCallback((address: string): UserNameRecord[] | null => {
+    if (typeof window === 'undefined') return null;
+
+    try {
+      const raw = window.localStorage.getItem(cacheKey(address));
+      if (!raw) return null;
+      const cached = JSON.parse(raw) as { names: CachedUserNameRecord[] };
+      if (!Array.isArray(cached.names)) return null;
+
+      return cached.names.map(({ nameHash, data }) => ({
+        nameHash,
+        data: {
+          ...data,
+          lockAmount: BigInt(data.lockAmount),
+          auctionId: BigInt(data.auctionId),
+          expiresAt: BigInt(data.expiresAt),
+        },
+      }));
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const writeCachedNames = useCallback((address: string, records: UserNameRecord[]) => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const namesToCache: CachedUserNameRecord[] = records.map(({ nameHash, data }) => ({
+        nameHash,
+        data: {
+          ...data,
+          lockAmount: data.lockAmount.toString(),
+          auctionId: data.auctionId.toString(),
+          expiresAt: data.expiresAt.toString(),
+        },
+      }));
+      window.localStorage.setItem(cacheKey(address), JSON.stringify({ names: namesToCache, cachedAt: Date.now() }));
+    } catch {
+      // Cache is only a UI acceleration path.
+    }
+  }, []);
 
   const load = useCallback(async (address: string) => {
     if (!address) return;
+    const cachedNames = readCachedNames(address);
+    if (cachedNames?.length) {
+      setNames(cachedNames);
+    }
+
     setLoading(true);
     try {
-      console.log('[useUserNames] Loading names for:', address);
-      const nameHashes = await qnns.getNamesOwnedBy(address);
-      console.log('[useUserNames] Found nameHashes:', nameHashes);
-      const results: Array<{ nameHash: string; data: qnns.NameCore }> = [];
+      const indexedNameHashes = await getDomainHashesOwnedByFromSubgraph(address);
+      const nameHashes = indexedNameHashes ?? await qnns.getNamesOwnedBy(address);
+      const results: UserNameRecord[] = [];
       for (const nh of nameHashes) {
-        const data = await qnns.getNameData(nh);
-        console.log('[useUserNames] Name data for', nh, ':', data);
-        if (data) {
-          results.push({ nameHash: nh, data });
+        try {
+          const owner = await qnns.ownerOf(nh);
+          if (owner.toLowerCase() !== address.toLowerCase()) continue;
+
+          const data = await qnns.getNameData(nh);
+          if (data) {
+            results.push({ nameHash: nh, data });
+          }
+        } catch {
+          // Skip stale indexed entries or released tokens.
         }
       }
       setNames(results);
+      writeCachedNames(address, results);
     } catch (e) {
       console.error('[useUserNames] Error:', e);
-      setNames([]);
+      if (!cachedNames?.length) {
+        setNames([]);
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [readCachedNames, writeCachedNames]);
 
   return { names, loading, load };
 }

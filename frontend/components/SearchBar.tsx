@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { isValidName, nameValidationError, getRegistrationType } from '@/lib/utils';
 import { isAvailable } from '@/lib/qnns';
@@ -9,56 +9,63 @@ export function SearchBar({ onQueryChange }: { onQueryChange?: (query: string) =
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [available, setAvailable] = useState<boolean | null>(null);
+  const [checkedName, setCheckedName] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
-  const [validationErr, setValidationErr] = useState<string | null>(null);
+  const searchRequestRef = useRef(0);
 
-  const checkName = useCallback(async (name: string) => {
-    if (!isValidName(name)) {
+  const name = query.toLowerCase().trim();
+  const validationErr = name ? nameValidationError(name) : null;
+  const hasFreshResult = checkedName === name && available !== null;
+
+  const checkName = async (nameToCheck: string) => {
+    if (!isValidName(nameToCheck)) {
       setAvailable(null);
+      setCheckedName(null);
       return;
     }
+    const requestId = searchRequestRef.current + 1;
+    searchRequestRef.current = requestId;
     setChecking(true);
     try {
-      const result = await isAvailable(name);
+      const result = await isAvailable(nameToCheck);
+      if (requestId !== searchRequestRef.current) return;
       setAvailable(result);
+      setCheckedName(nameToCheck);
+      onQueryChange?.(nameToCheck);
     } catch {
+      if (requestId !== searchRequestRef.current) return;
       setAvailable(null);
+      setCheckedName(nameToCheck);
     } finally {
-      setChecking(false);
+      if (requestId === searchRequestRef.current) {
+        setChecking(false);
+      }
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    const name = query.toLowerCase().trim();
-    onQueryChange?.(name);
-    const err = name.length > 0 ? nameValidationError(name) : null;
-    setValidationErr(err);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isValidName(name)) return;
 
-    if (err || name.length === 0) {
-      setAvailable(null);
+    if (!hasFreshResult) {
+      await checkName(name);
       return;
     }
 
-    const timeout = setTimeout(() => checkName(name), 400);
-    return () => clearTimeout(timeout);
-  }, [query, checkName, onQueryChange]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const name = query.toLowerCase().trim();
-    if (!isValidName(name)) return;
-
-    if (available) {
+    if (available === true) {
       router.push(`/register?name=${encodeURIComponent(name)}`);
     } else {
       router.push(`/${encodeURIComponent(name)}`);
     }
   };
 
-  const name = query.toLowerCase().trim();
-  const action = available === true
+  const action = checking
+    ? 'Searching'
+    : hasFreshResult && available === true
     ? (getRegistrationType(name) === 'instant' ? 'Register' : 'Auction')
-    : 'Look up';
+    : hasFreshResult && available === false
+      ? 'View'
+      : 'Search';
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
@@ -67,7 +74,14 @@ export function SearchBar({ onQueryChange }: { onQueryChange?: (query: string) =
           <input
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              searchRequestRef.current += 1;
+              setQuery(e.target.value);
+              setAvailable(null);
+              setCheckedName(null);
+              setChecking(false);
+              onQueryChange?.('');
+            }}
             placeholder="yoursite"
             autoComplete="off"
             spellCheck={false}
@@ -77,7 +91,7 @@ export function SearchBar({ onQueryChange }: { onQueryChange?: (query: string) =
         </div>
         <button
           type="submit"
-          disabled={!query.trim() || !!validationErr}
+          disabled={!name || !!validationErr || checking}
           className="reg-btn reg-btn-stamp min-h-[3.25rem] px-7 text-[0.9rem] tracking-[0.04em] sm:min-w-[9rem]"
         >
           {action}
@@ -90,19 +104,19 @@ export function SearchBar({ onQueryChange }: { onQueryChange?: (query: string) =
             Lowercase letters, numbers, hyphen, underscore · up to 64 chars
           </p>
         )}
-        {query.trim() && validationErr && (
+        {name && validationErr && (
           <p className="font-mono text-xs text-bad">✕ {validationErr}</p>
         )}
-        {query.trim() && !validationErr && checking && (
-          <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted">Checking the register…</p>
+        {name && !validationErr && checking && (
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted">Searching the register…</p>
         )}
-        {query.trim() && !validationErr && !checking && available === true && (
+        {name && !validationErr && !checking && hasFreshResult && available === true && (
           <p className="flex items-center gap-3 text-sm text-ink">
             <span className="reg-stamp reg-stamp-good reg-stamped">Available</span>
             <span><span className="font-display text-base">{name}.quai</span> can be claimed.</span>
           </p>
         )}
-        {query.trim() && !validationErr && !checking && available === false && (
+        {name && !validationErr && !checking && hasFreshResult && available === false && (
           <p className="flex flex-wrap items-center gap-3 text-sm text-muted">
             <span className="reg-stamp reg-stamp-bad reg-stamped">Taken</span>
             <span>

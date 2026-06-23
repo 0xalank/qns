@@ -21,6 +21,10 @@
     "load:module:mainnet": "node scripts/load-module-mainnet.js",
     "verify:module:mainnet": "node scripts/verify-module-mainnet.js",
     "check:module-deploy-target": "hardhat run scripts/check-module-deploy-target.js",
+    "subgraph:codegen": "graph codegen indexer/subgraph.yaml",
+    "subgraph:build": "graph build indexer/subgraph.yaml",
+    "subgraph:create": "graph create qns/qnns --node $GRAPH_NODE_ADMIN_URL",
+    "subgraph:deploy": "graph deploy qns/qnns --node $GRAPH_NODE_ADMIN_URL --ipfs $GRAPH_IPFS_URL indexer/subgraph.yaml",
     "build": "tsc",
     "clean": "rm -rf dist cache artifacts"
   },
@@ -34,10 +38,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "quais": "^1.0.0-alpha.52",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "quais": "^1.0.0-alpha.52"
   },
   "devDependencies": {
+    "@graphprotocol/graph-ts": "^0.38.2",
     "@nomicfoundation/hardhat-toolbox": "^6.1.0",
     "@quai/hardhat-deploy-metadata": "^1.0.8",
     "@types/node": "^20",

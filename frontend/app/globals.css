@@ -64,10 +64,10 @@ html.dark {
   --paper:        oklch(0.125 0.015 258);
   --paper-2:      oklch(0.155 0.018 258);  /* slate-dark surface */
   --paper-sunk:   oklch(0.095 0.012 258);  /* deep well */
-  --ink:          oklch(0.965 0.012 255);  /* crisp white */
-  --ink-soft:     oklch(0.840 0.015 255);  /* soft silver */
-  --muted:        oklch(0.640 0.018 255);  /* medium gray */
-  --faint:        oklch(0.380 0.015 255);  /* dark gray */
+  --ink:          oklch(0.988 0.006 255);  /* crisp white */
+  --ink-soft:     oklch(0.910 0.010 255);  /* bright silver */
+  --muted:        oklch(0.780 0.012 255);  /* readable secondary */
+  --faint:        oklch(0.610 0.012 255);  /* visible tertiary */
 
   --line:         oklch(0.220 0.014 258);  /* hairline border */
   --line-strong:  oklch(0.320 0.018 258);  /* strong border */
