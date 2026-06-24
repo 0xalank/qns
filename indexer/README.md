@@ -1,7 +1,17 @@
 # QNNS Subgraph
 
-Indexes the deployed QNNS registry for fast owner-to-domain reads. Contract reads
-remain the source of truth for writes and verification.
+Indexes the deployed QNNS registry for fast owner-to-domain reads, and the
+`QNSAnchorRegistry` for publications (which module each name currently anchors).
+Contract reads remain the source of truth for writes and verification.
+
+Data sources:
+
+- **QNNS** — `Domain` / `Account` / `Auction` / `DomainEvent` (names, ownership, profiles).
+- **QNSAnchorRegistry** — `Publication` (a module anchored to a name, from
+  `AnchorSet` / `AnchorCleared`). Powers the publishing feed without scanning logs.
+
+Note: set the `QNSAnchorRegistry` `startBlock` in `subgraph.yaml` to the registry's
+actual deploy block (currently the QNNS launch block as a safe floor).
 
 Target endpoint after deploy:
 

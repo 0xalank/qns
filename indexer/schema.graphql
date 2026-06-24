@@ -22,6 +22,23 @@ type Domain @entity(immutable: false) {
   updatedAt: BigInt!
   updatedBlock: BigInt!
   transferCount: Int!
+  publication: Publication @derivedFrom(field: "domain")
+}
+
+"A module anchored to a name via QNSAnchorRegistry — i.e. what a name currently publishes."
+type Publication @entity(immutable: false) {
+  id: ID!                 # nameHash hex
+  nameHash: Bytes!
+  domain: Domain          # the name this is published under
+  owner: Account!
+  moduleAddress: Bytes!
+  topology: Bytes!
+  manifestHash: Bytes!
+  active: Boolean!        # false once the anchor is cleared
+  createdAt: BigInt!
+  createdBlock: BigInt!
+  updatedAt: BigInt!
+  updatedBlock: BigInt!
 }
 
 type Auction @entity(immutable: false) {

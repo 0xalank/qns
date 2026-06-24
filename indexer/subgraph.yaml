@@ -57,3 +57,27 @@ dataSources:
         - event: MarketplaceBidAccepted(indexed bytes32,uint256,indexed address,indexed address,uint256)
           handler: handleMarketplaceBidAccepted
       file: ./src/qnns.ts
+  - kind: ethereum/contract
+    name: QNSAnchorRegistry
+    network: quai
+    source:
+      address: "0x000041d9d377ab357DD36e3205C9fB53fda40CC7"
+      abi: QNSAnchorRegistry
+      startBlock: 8652267
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.8
+      language: wasm/assemblyscript
+      entities:
+        - Account
+        - Domain
+        - Publication
+      abis:
+        - name: QNSAnchorRegistry
+          file: ../artifacts/contracts/modules/QNSAnchorRegistry.sol/QNSAnchorRegistry.json
+      eventHandlers:
+        - event: AnchorSet(indexed bytes32,indexed address,indexed bytes32,bytes,bytes32)
+          handler: handleAnchorSet
+        - event: AnchorCleared(indexed bytes32,indexed address)
+          handler: handleAnchorCleared
+      file: ./src/anchorRegistry.ts
